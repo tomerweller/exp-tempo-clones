@@ -42,14 +42,14 @@ impl StablecoinExchange {
 
     // ============ Trading Pair Management ============
 
-    /// Create a new trading pair
+    /// Create a new trading pair (admin only)
     pub fn create_pair(
         env: Env,
-        caller: Address,
         base_token: Address,
         quote_token: Address,
     ) -> Result<(), Error> {
-        caller.require_auth();
+        let admin = storage::get_admin(&env);
+        admin.require_auth();
 
         if base_token == quote_token {
             return Err(Error::SameToken);

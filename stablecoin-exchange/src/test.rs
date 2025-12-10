@@ -71,7 +71,7 @@ fn test_initialize() {
 fn test_create_pair() {
     let (_env, exchange, admin, _user, base_token, quote_token, _, _) = setup_test_env();
 
-    exchange.create_pair(&admin, &base_token.address, &quote_token.address);
+    exchange.create_pair(&base_token.address, &quote_token.address);
 
     // Verify orderbook exists
     let orderbook = exchange.get_orderbook(&base_token.address, &quote_token.address);
@@ -83,7 +83,7 @@ fn test_create_pair() {
 fn test_create_pair_same_token_fails() {
     let (_env, exchange, admin, _user, base_token, _quote_token, _, _) = setup_test_env();
 
-    let result = exchange.try_create_pair(&admin, &base_token.address, &base_token.address);
+    let result = exchange.try_create_pair(&base_token.address, &base_token.address);
     assert_eq!(result, Err(Ok(Error::SameToken)));
 }
 
@@ -91,9 +91,9 @@ fn test_create_pair_same_token_fails() {
 fn test_create_pair_duplicate_fails() {
     let (_env, exchange, admin, _user, base_token, quote_token, _, _) = setup_test_env();
 
-    exchange.create_pair(&admin, &base_token.address, &quote_token.address);
+    exchange.create_pair(&base_token.address, &quote_token.address);
 
-    let result = exchange.try_create_pair(&admin, &base_token.address, &quote_token.address);
+    let result = exchange.try_create_pair(&base_token.address, &quote_token.address);
     assert_eq!(result, Err(Ok(Error::PairAlreadyExists)));
 }
 
@@ -102,7 +102,7 @@ fn test_place_bid_order() {
     let (_env, exchange, admin, user, base_token, quote_token, _, quote_admin) = setup_test_env();
 
     // Create pair
-    exchange.create_pair(&admin, &base_token.address, &quote_token.address);
+    exchange.create_pair(&base_token.address, &quote_token.address);
 
     // Mint quote tokens to user
     quote_admin.mint(&user, &1_000_000_000);
@@ -136,7 +136,7 @@ fn test_place_ask_order() {
     let (_env, exchange, admin, user, base_token, quote_token, base_admin, _) = setup_test_env();
 
     // Create pair
-    exchange.create_pair(&admin, &base_token.address, &quote_token.address);
+    exchange.create_pair(&base_token.address, &quote_token.address);
 
     // Mint base tokens to user
     base_admin.mint(&user, &1_000_000_000);
@@ -165,7 +165,7 @@ fn test_place_ask_order() {
 fn test_order_too_small_fails() {
     let (_env, exchange, admin, user, base_token, quote_token, _, quote_admin) = setup_test_env();
 
-    exchange.create_pair(&admin, &base_token.address, &quote_token.address);
+    exchange.create_pair(&base_token.address, &quote_token.address);
     quote_admin.mint(&user, &1_000_000_000);
 
     // Try to place order below minimum
@@ -185,7 +185,7 @@ fn test_order_too_small_fails() {
 fn test_invalid_tick_fails() {
     let (_env, exchange, admin, user, base_token, quote_token, _, quote_admin) = setup_test_env();
 
-    exchange.create_pair(&admin, &base_token.address, &quote_token.address);
+    exchange.create_pair(&base_token.address, &quote_token.address);
     quote_admin.mint(&user, &1_000_000_000);
 
     // Try tick outside range
@@ -205,7 +205,7 @@ fn test_invalid_tick_fails() {
 fn test_execute_block() {
     let (env, exchange, admin, user, base_token, quote_token, _, quote_admin) = setup_test_env();
 
-    exchange.create_pair(&admin, &base_token.address, &quote_token.address);
+    exchange.create_pair(&base_token.address, &quote_token.address);
     quote_admin.mint(&user, &1_000_000_000);
 
     let order_id = exchange.place(
@@ -237,7 +237,7 @@ fn test_execute_block() {
 fn test_cancel_pending_order() {
     let (_env, exchange, admin, user, base_token, quote_token, _, quote_admin) = setup_test_env();
 
-    exchange.create_pair(&admin, &base_token.address, &quote_token.address);
+    exchange.create_pair(&base_token.address, &quote_token.address);
     quote_admin.mint(&user, &1_000_000_000);
 
     let order_id = exchange.place(
@@ -261,7 +261,7 @@ fn test_cancel_pending_order() {
 fn test_place_flip_order() {
     let (_env, exchange, admin, user, base_token, quote_token, _, quote_admin) = setup_test_env();
 
-    exchange.create_pair(&admin, &base_token.address, &quote_token.address);
+    exchange.create_pair(&base_token.address, &quote_token.address);
     quote_admin.mint(&user, &1_000_000_000);
 
     // Place flip bid: buy at tick 0, flip to sell at tick 100
@@ -286,7 +286,7 @@ fn test_place_flip_order() {
 fn test_invalid_flip_tick_bid() {
     let (_env, exchange, admin, user, base_token, quote_token, _, quote_admin) = setup_test_env();
 
-    exchange.create_pair(&admin, &base_token.address, &quote_token.address);
+    exchange.create_pair(&base_token.address, &quote_token.address);
     quote_admin.mint(&user, &1_000_000_000);
 
     // Flip tick must be > tick for bids
@@ -307,7 +307,7 @@ fn test_invalid_flip_tick_bid() {
 fn test_invalid_flip_tick_ask() {
     let (_env, exchange, admin, user, base_token, quote_token, base_admin, _) = setup_test_env();
 
-    exchange.create_pair(&admin, &base_token.address, &quote_token.address);
+    exchange.create_pair(&base_token.address, &quote_token.address);
     base_admin.mint(&user, &1_000_000_000);
 
     // Flip tick must be < tick for asks
@@ -341,7 +341,7 @@ fn test_swap_exact_in_buy() {
     let (env, exchange, admin, user, base_token, quote_token, base_admin, quote_admin) =
         setup_test_env();
 
-    exchange.create_pair(&admin, &base_token.address, &quote_token.address);
+    exchange.create_pair(&base_token.address, &quote_token.address);
 
     // Maker provides liquidity (ask order - selling base)
     let maker = Address::generate(&env);
@@ -384,7 +384,7 @@ fn test_swap_exact_in_sell() {
     let (env, exchange, admin, user, base_token, quote_token, base_admin, quote_admin) =
         setup_test_env();
 
-    exchange.create_pair(&admin, &base_token.address, &quote_token.address);
+    exchange.create_pair(&base_token.address, &quote_token.address);
 
     // Maker provides liquidity (bid order - buying base)
     let maker = Address::generate(&env);
@@ -425,7 +425,7 @@ fn test_swap_exact_in_sell() {
 fn test_quote_swap() {
     let (env, exchange, admin, _user, base_token, quote_token, base_admin, _) = setup_test_env();
 
-    exchange.create_pair(&admin, &base_token.address, &quote_token.address);
+    exchange.create_pair(&base_token.address, &quote_token.address);
 
     // Add some liquidity
     let maker = Address::generate(&env);
@@ -462,7 +462,7 @@ fn test_quote_swap() {
 fn test_withdraw() {
     let (_env, exchange, admin, user, base_token, quote_token, base_admin, _) = setup_test_env();
 
-    exchange.create_pair(&admin, &base_token.address, &quote_token.address);
+    exchange.create_pair(&base_token.address, &quote_token.address);
 
     // Give user some balance (simulating filled order credit)
     // We'll do this by placing and canceling an order
