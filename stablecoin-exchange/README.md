@@ -98,6 +98,54 @@ Flip orders automatically create an opposite-side order when fully filled:
 - A bid flip order at tick 0 with flip_tick 100 will, when filled, create an ask at tick 100
 - Useful for market makers who want to continuously provide liquidity on both sides
 
+## Known Limitations
+
+Soroban enforces strict limits on computation and ledger access per transaction. This contract has several operations that could hit these limits under certain conditions.
+
+### Order Traversal in Swaps
+
+The `swap_exact_in` function iterates through orders in a linked list at each tick level:
+
+```rust
+while amount_to_fill > 0 && current_order_id != 0 {
+    let current_order = order::get_order(env, current_order_id)?;  // Ledger read
+    // ... process order
+}
+```
+
+Each order is a separate ledger entry read. Soroban limits transactions to ~100 ledger entries. A swap that needs to fill many small orders could exceed this limit and fail.
+
+### Best Tick Discovery
+
+Finding the next tick with liquidity iterates through ticks:
+
+```rust
+while tick >= MIN_TICK {
+    let level = get_bid_tick_level(env, ...);  // Ledger read each iteration
+    tick -= TICK_SPACING;
+}
+```
+
+With 400 possible ticks (range of 4000 / spacing of 10), a sparse orderbook could require many ledger reads to find liquidity.
+
+### Batch Order Execution
+
+`execute_block` processes multiple pending orders, each requiring:
+- Read pending order
+- Read/write tick level
+- Read/write tail order (for linked list)
+- Write new active order
+
+Processing 20+ orders in a single call could exceed ledger access limits.
+
+### Potential Mitigations
+
+- **Max iterations**: Cap loops with explicit limits and return partial results
+- **Batch size limits**: Limit orders per `execute_block` call
+- **Tick bitmaps**: Use bitmap to track which ticks have liquidity (avoid iterating empty ticks)
+- **Pagination**: Split large swaps across multiple transactions
+- **Order size minimums**: Increase `MIN_ORDER_SIZE` to reduce order fragmentation
+
 ## Original Implementation
 
 Ported from [Tempo's Stablecoin Exchange Precompile](https://github.com/tempoxyz/tempo/tree/main/crates/precompiles/src/stablecoin_exchange)

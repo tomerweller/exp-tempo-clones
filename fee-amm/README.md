@@ -70,6 +70,16 @@ All 17 tests pass.
 - `balance_of(address)` - Get LP token balance
 - `total_supply()` - Get total LP tokens
 
+## Known Limitations
+
+### Pending Swaps Vector Growth
+
+The `pending_swaps` are stored in a single `Vec<PendingFeeSwap>` ledger entry. Soroban enforces a ~64KB limit on individual ledger entries. Each pending swap is ~100+ bytes, meaning ~500-600 pending swaps could exceed this limit and cause transactions to fail.
+
+**Potential mitigations:**
+- Add a `MAX_PENDING_SWAPS` constant and reject new reservations when full
+- Process pending swaps more frequently to prevent accumulation
+
 ## Original Implementation
 
 Ported from [Tempo's Fee AMM Precompile](https://github.com/tempoxyz/tempo/blob/main/crates/precompiles/src/tip_fee_manager/amm.rs)
