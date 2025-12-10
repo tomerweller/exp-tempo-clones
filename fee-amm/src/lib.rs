@@ -468,17 +468,12 @@ impl TempoFeeAMM {
     /// as an approximation. In production, consider integrating with the fee collection system.
     pub fn reserve_liquidity(
         env: Env,
-        caller: Address,
         user_token: Address,
         validator_token: Address,
         max_amount: i128,
     ) -> Result<(), Error> {
-        // Only admin can reserve liquidity (typically called by fee system)
-        caller.require_auth();
         let admin = storage::get_admin(&env);
-        if caller != admin {
-            return Err(Error::Unauthorized);
-        }
+        admin.require_auth();
 
         if max_amount <= 0 {
             return Err(Error::InvalidAmount);
@@ -509,16 +504,12 @@ impl TempoFeeAMM {
     /// Release reserved liquidity (refund unused reservation)
     pub fn release_liquidity(
         env: Env,
-        caller: Address,
         user_token: Address,
         validator_token: Address,
         refund_amount: i128,
     ) -> Result<(), Error> {
-        caller.require_auth();
         let admin = storage::get_admin(&env);
-        if caller != admin {
-            return Err(Error::Unauthorized);
-        }
+        admin.require_auth();
 
         if refund_amount <= 0 {
             return Err(Error::InvalidAmount);
@@ -546,15 +537,11 @@ impl TempoFeeAMM {
     /// as an approximation. In production, consider protocol-level integration.
     pub fn execute_pending_fee_swaps(
         env: Env,
-        caller: Address,
         user_token: Address,
         validator_token: Address,
     ) -> Result<i128, Error> {
-        caller.require_auth();
         let admin = storage::get_admin(&env);
-        if caller != admin {
-            return Err(Error::Unauthorized);
-        }
+        admin.require_auth();
 
         storage::extend_instance_ttl(&env);
 

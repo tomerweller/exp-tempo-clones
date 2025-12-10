@@ -295,14 +295,14 @@ fn test_reserve_and_execute_fee_swap() {
 
     // Reserve liquidity for fee swap
     let swap_amount = 10_000i128;
-    amm_client.reserve_liquidity(&admin, &user_token.address, &validator_token.address, &swap_amount);
+    amm_client.reserve_liquidity(&user_token.address, &validator_token.address, &swap_amount);
 
     // Check pending
     let pending = amm_client.get_pending_fee_swap(&user_token.address, &validator_token.address);
     assert_eq!(pending, swap_amount);
 
     // Execute pending swaps
-    let amount_out = amm_client.execute_pending_fee_swaps(&admin, &user_token.address, &validator_token.address);
+    let amount_out = amm_client.execute_pending_fee_swaps(&user_token.address, &validator_token.address);
 
     // Expected: 10000 * 9970 / 10000 = 9970
     assert_eq!(amount_out, 9970);
@@ -339,7 +339,6 @@ fn test_reserve_liquidity_insufficient() {
     // Pool has 5000 validator tokens
     // Try to reserve more than available (5001 * 0.997 = 4985 out needed > 5000)
     let result = amm_client.try_reserve_liquidity(
-        &admin,
         &user_token.address,
         &validator_token.address,
         &6_000,
@@ -367,8 +366,8 @@ fn test_release_liquidity() {
     );
 
     // Reserve then release
-    amm_client.reserve_liquidity(&admin, &user_token.address, &validator_token.address, &10_000);
-    amm_client.release_liquidity(&admin, &user_token.address, &validator_token.address, &5_000);
+    amm_client.reserve_liquidity(&user_token.address, &validator_token.address, &10_000);
+    amm_client.release_liquidity(&user_token.address, &validator_token.address, &5_000);
 
     let pending = amm_client.get_pending_fee_swap(&user_token.address, &validator_token.address);
     assert_eq!(pending, 5_000);
@@ -482,16 +481,16 @@ fn test_multiple_fee_swaps() {
     );
 
     // Multiple reservations
-    amm_client.reserve_liquidity(&admin, &user_token.address, &validator_token.address, &1_000);
-    amm_client.reserve_liquidity(&admin, &user_token.address, &validator_token.address, &2_000);
-    amm_client.reserve_liquidity(&admin, &user_token.address, &validator_token.address, &3_000);
+    amm_client.reserve_liquidity(&user_token.address, &validator_token.address, &1_000);
+    amm_client.reserve_liquidity(&user_token.address, &validator_token.address, &2_000);
+    amm_client.reserve_liquidity(&user_token.address, &validator_token.address, &3_000);
 
     // Check total pending
     let pending = amm_client.get_pending_fee_swap(&user_token.address, &validator_token.address);
     assert_eq!(pending, 6_000);
 
     // Execute all at once
-    let total_out = amm_client.execute_pending_fee_swaps(&admin, &user_token.address, &validator_token.address);
+    let total_out = amm_client.execute_pending_fee_swaps(&user_token.address, &validator_token.address);
 
     // Expected: 6000 * 9970 / 10000 = 5982
     assert_eq!(total_out, 5982);
@@ -522,7 +521,7 @@ fn test_burn_blocked_by_pending_swaps() {
     // Reserve most of the validator tokens
     // Pool has 10000 validator tokens, reserve 9500 worth of swaps
     // 9500 * 0.997 = 9471.5 out needed
-    amm_client.reserve_liquidity(&admin, &user_token.address, &validator_token.address, &9_500);
+    amm_client.reserve_liquidity(&user_token.address, &validator_token.address, &9_500);
 
     // Try to burn all liquidity - should fail because validator tokens are reserved
     let result = amm_client.try_burn(
