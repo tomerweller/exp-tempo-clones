@@ -1,0 +1,19 @@
+# Build artifacts
+target/
+*.wasm
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Stellar
+.soroban/
+
+# Test snapshots (optional - can keep if you want)
+test_snapshots/
