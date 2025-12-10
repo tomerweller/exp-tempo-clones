@@ -61,7 +61,7 @@ All 19 tests pass.
 
 ### Initialization
 - `initialize(admin)` - Initialize the exchange
-- `create_pair(caller, base_token, quote_token)` - Create a trading pair
+- `create_pair(base_token, quote_token)` - Create a trading pair (admin-only)
 
 ### Order Placement
 - `place(maker, base_token, quote_token, is_bid, tick, amount)` - Place limit order

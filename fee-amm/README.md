@@ -51,22 +51,24 @@ All 17 tests pass.
 ## API
 
 ### Initialization
-- `initialize(admin, token_a, token_b)` - Initialize the AMM with two tokens
+- `initialize(admin, user_token, validator_token)` - Initialize the AMM with admin and token pair
 
 ### Liquidity
-- `mint(to, amount_a, amount_b, min_liquidity)` - Add liquidity
-- `burn(from, liquidity, min_a, min_b)` - Remove liquidity
+- `mint(to, amount_user, amount_validator, min_liquidity)` - Add liquidity
+- `mint_with_validator_token(to, amount_validator, min_liquidity)` - Add single-sided liquidity
+- `burn(from, liquidity, min_user, min_validator)` - Remove liquidity
 
 ### Swapping
-- `fee_swap(amount_in, token_in, min_out)` - Standard swap (0.3% fee)
-- `rebalance_swap(amount_in, token_in, min_out)` - Rebalance swap (0.15% fee)
+- `fee_swap(user_token, validator_token, amount_in)` - Standard swap (0.3% fee)
+- `rebalance_swap(sender, user_token, validator_token, amount_out, to)` - Rebalance swap (0.15% fee)
 
-### Fee Swap Reservations
-- `reserve_liquidity(reserver, token, amount)` - Reserve for pending swap
-- `execute_pending_fee_swaps(pending_swaps)` - Execute reserved swaps
+### Fee Swap Reservations (Admin-only)
+- `reserve_liquidity(user_token, validator_token, max_amount)` - Reserve for pending swap
+- `release_liquidity(user_token, validator_token, refund_amount)` - Release reserved liquidity
+- `execute_pending_fee_swaps(user_token, validator_token)` - Execute reserved swaps
 
 ### View Functions
-- `get_reserves()` - Get current reserves
+- `get_reserves(user_token, validator_token)` - Get current reserves
 - `balance_of(address)` - Get LP token balance
 - `total_supply()` - Get total LP tokens
 
