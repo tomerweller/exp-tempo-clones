@@ -462,6 +462,10 @@ impl TempoFeeAMM {
 
     /// Reserve liquidity for pending fee swaps
     /// Called before executing fee transactions to ensure liquidity is available
+    ///
+    /// NOTE: In the original Tempo implementation, this is likely a system-level function
+    /// called by the protocol during transaction processing. Here we use admin-only access
+    /// as an approximation. In production, consider integrating with the fee collection system.
     pub fn reserve_liquidity(
         env: Env,
         caller: Address,
@@ -536,6 +540,10 @@ impl TempoFeeAMM {
 
     /// Execute all pending fee swaps for a pool
     /// Converts accumulated user tokens to validator tokens
+    ///
+    /// NOTE: In the original Tempo implementation, this is likely a system-level function
+    /// called by the protocol during block finalization. Here we use admin-only access
+    /// as an approximation. In production, consider protocol-level integration.
     pub fn execute_pending_fee_swaps(
         env: Env,
         caller: Address,
@@ -581,6 +589,11 @@ impl TempoFeeAMM {
 
     /// Rebalance swap: exchange validator tokens for user tokens
     /// Used to rebalance pools when they become imbalanced
+    ///
+    /// NOTE: In the original Tempo implementation, this function may be intended for
+    /// validators or privileged actors to rebalance pools. Currently permissionless -
+    /// any user with validator tokens can call it. Consider adding access control
+    /// if rebalancing should be restricted.
     pub fn rebalance_swap(
         env: Env,
         sender: Address,

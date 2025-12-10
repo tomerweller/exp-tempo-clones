@@ -214,12 +214,19 @@ impl StablecoinExchange {
     }
 
     /// Execute pending orders (activate them into the orderbook)
+    ///
+    /// WARNING: In the original Tempo implementation, this function is privileged
+    /// and can only be called by the protocol (Address::ZERO) during block finalization.
+    /// This prevents front-running and selective order activation.
+    /// In this Soroban port, the function is permissionless - any user can call it.
+    /// Consider adding admin-only restriction for production use.
     pub fn execute_block(
         env: Env,
         base_token: Address,
         quote_token: Address,
         order_ids: soroban_sdk::Vec<u128>,
     ) -> Result<(), Error> {
+        // TODO: Add access control - original Tempo requires sender == Address::ZERO
         storage::extend_instance_ttl(&env);
 
         let mut orderbook =

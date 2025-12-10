@@ -100,6 +100,26 @@ Flip orders automatically create an opposite-side order when fully filled:
 
 ## Known Limitations
 
+### Missing Access Control on execute_block
+
+In the original Tempo implementation, `execute_block` is a **privileged function** that can only be called by the protocol (`Address::ZERO`) during block finalization:
+
+```rust
+// Original Tempo implementation
+if sender != Address::ZERO {
+    return Err(StablecoinExchangeError::unauthorized().into());
+}
+```
+
+This design prevents:
+- **Front-running**: Users cannot selectively activate favorable orders
+- **MEV extraction**: No manipulation of order activation sequencing
+- **Selective execution**: All pending orders are processed fairly by the protocol
+
+**In this Soroban port, `execute_block` is permissionless** - any user can call it and choose which orders to activate. For production use, consider adding admin-only restriction or integrating with a trusted sequencer.
+
+### Soroban Resource Limits
+
 Soroban enforces strict limits on computation and ledger access per transaction. This contract has several operations that could hit these limits under certain conditions.
 
 ### Order Traversal in Swaps

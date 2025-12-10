@@ -72,6 +72,22 @@ All 17 tests pass.
 
 ## Known Limitations
 
+### Access Control Differences from Original Tempo
+
+In the original Tempo implementation, several functions are likely **system-level operations** called by the protocol during transaction processing or block finalization, not by regular users.
+
+| Function | This Port | Original Tempo (likely) |
+|----------|-----------|------------------------|
+| `reserve_liquidity` | Admin-only | Protocol/system call |
+| `execute_pending_fee_swaps` | Admin-only | Protocol/system call |
+| `rebalance_swap` | Permissionless | Possibly validator-only |
+
+**Implications:**
+- `reserve_liquidity` and `execute_pending_fee_swaps` use admin-only access as an approximation of protocol-level access
+- `rebalance_swap` is currently permissionless - anyone with validator tokens can rebalance. In Tempo, this may be restricted to validators.
+
+For production use, consider integrating these functions with your fee collection and validator systems rather than exposing them directly.
+
 ### Pending Swaps Vector Growth
 
 The `pending_swaps` are stored in a single `Vec<PendingFeeSwap>` ledger entry. Soroban enforces a ~64KB limit on individual ledger entries. Each pending swap is ~100+ bytes, meaning ~500-600 pending swaps could exceed this limit and cause transactions to fail.
